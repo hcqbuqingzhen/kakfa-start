@@ -3,6 +3,7 @@ package yun.core.start.kafka.client;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.env.Environment;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
@@ -22,13 +23,17 @@ import java.util.Map;
 
 @Component
 public class KafkaConsumerRegistrar implements InitializingBean {
+
+    private final Environment environment;
     private final KafkaServiceProperties kafkaServiceProperties;
     private final KafkaConsumerProperties kafkaConsumerProperties;
     private final List<AbstractIKafkaConsumer<?>> handlers;
 
-    public KafkaConsumerRegistrar(KafkaServiceProperties kafkaServiceProperties,
+    public KafkaConsumerRegistrar(Environment environment,
+                                  KafkaServiceProperties kafkaServiceProperties,
                                   KafkaConsumerProperties kafkaConsumerProperties,
                                   List<AbstractIKafkaConsumer<?>> handlers) {
+        this.environment = environment;
         this.kafkaConsumerProperties = kafkaConsumerProperties;
         this.kafkaServiceProperties = kafkaServiceProperties;
         this.handlers = handlers;
@@ -53,7 +58,9 @@ public class KafkaConsumerRegistrar implements InitializingBean {
                 if (consumerConfig.getInstanceName() == null || consumerConfig.getTopic() == null || consumerConfig.getGroupId() == null) {
                     throw new IllegalStateException("消费者配置缺少必要参数：" + mapkey);
                 }
-                handler.setTopic(consumerConfig.getTopic());
+                    //监听器容器
+                String topic = resolveTopic(consumerConfig.getTopic());
+                handler.setTopic(topic);
                 handler.setGroupId(consumerConfig.getGroupId());
                 handler.setInstanceName(consumerConfig.getInstanceName());
                 // 设置并发数
@@ -76,7 +83,6 @@ public class KafkaConsumerRegistrar implements InitializingBean {
     private <T> void registerListener(IKafkaConsumer<T> handler) {
         //消费者工厂
         ConsumerFactory<String, ?> factory = createConsumerFactory(handler);
-        //监听器容器
         ContainerProperties containerProps = new ContainerProperties(handler.getTopic());
         containerProps.setGroupId(handler.getGroupId());
         // 将消息反序列化为 valueType 类型，并分发给对应 handler
@@ -113,6 +119,12 @@ public class KafkaConsumerRegistrar implements InitializingBean {
                 jsonDeserializer
         );
     }
+
+    private  String resolveTopic(String baseTopic) {
+        String profile = environment.getProperty("spring.profiles.active", "dev");
+        return baseTopic + "-" + profile;
+    }
+
 
     @SuppressWarnings("unchecked")
     public static <T> Class<T> resolveGenericType(IKafkaConsumer<T> handler) {

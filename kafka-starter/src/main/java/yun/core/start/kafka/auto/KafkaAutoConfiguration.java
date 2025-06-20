@@ -4,6 +4,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import yun.core.start.kafka.client.AbstractIKafkaConsumer;
 import yun.core.start.kafka.client.KafkaConsumerRegistrar;
 import yun.core.start.kafka.client.KafkaProducerManager;
@@ -14,7 +15,7 @@ import java.util.List;
 
 @Configuration
 @EnableConfigurationProperties({KafkaServiceProperties.class,KafkaConsumerProperties.class})
-public class KafkaProducerAutoConfiguration {
+public class KafkaAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public KafkaProducerManager kafkaProducerManager(KafkaServiceProperties properties) {
@@ -23,7 +24,8 @@ public class KafkaProducerAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public KafkaConsumerRegistrar kafkaConsumerRegistrar(KafkaServiceProperties properties, KafkaConsumerProperties consumerProperties, List<AbstractIKafkaConsumer<?>> kafkaConsumers) {
-        return new KafkaConsumerRegistrar(properties,consumerProperties,kafkaConsumers);
+    public KafkaConsumerRegistrar kafkaConsumerRegistrar(Environment environment, KafkaServiceProperties properties, KafkaConsumerProperties consumerProperties, List<AbstractIKafkaConsumer<?>> kafkaConsumers) {
+        return new KafkaConsumerRegistrar(environment,properties,consumerProperties,kafkaConsumers);
     }
+
 }

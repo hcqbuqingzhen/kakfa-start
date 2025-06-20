@@ -22,7 +22,7 @@ public class KafkaProducerManager {
     private final KafkaServiceProperties kafkaProps;
     private final Map<String, KafkaTemplate<String, Object>> templateCache = new ConcurrentHashMap<>();
 
-    public KafkaProducerManager(KafkaServiceProperties kafkaProps) {
+    public KafkaProducerManager( KafkaServiceProperties kafkaProps) {
         this.kafkaProps = kafkaProps;
     }
 
@@ -74,7 +74,7 @@ public class KafkaProducerManager {
             }
 
             ProducerFactory<String, Object> factory = new DefaultKafkaProducerFactory<>(props);
-            return new KafkaTemplate<>(factory);
+            return new KafkaTemplate<String, Object>(factory);
         });
     }
 }

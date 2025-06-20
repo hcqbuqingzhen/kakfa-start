@@ -11,8 +11,6 @@ public  abstract class AbstractIKafkaConsumer<T> implements IKafkaConsumer<T> {
     protected String groupId;
     protected String instanceName;
     protected int concurrency = 1;
-    //json格式化
-    private static final ObjectMapper objectMapper  = new ObjectMapper();
 
     public AbstractIKafkaConsumer() {
 
