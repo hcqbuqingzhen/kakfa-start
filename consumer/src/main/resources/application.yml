@@ -1,0 +1,34 @@
+server:
+  port: 6000
+  servlet:
+    context-path: /consumer
+spring:
+  application:
+    name: kafka-consumer
+    ## nacos配置
+  cloud:
+    nacos:
+      username: reboot
+      password: hcq123
+      discovery:
+        server-addr: localhost:8848
+        group: DEFAULT_GROUP
+        namespace: kafka-consumer-dev
+      config:
+        server-addr: localhost:8848
+        group: DEFAULT_GROUP
+        namespace: kafka-consumer-dev
+        file-extension: yaml
+        refresh-enabled: true
+        # 启用远程同步配置
+        enable-remote-sync-config: true
+  profiles:
+    active: dev
+  config:
+    import:
+      - optional:nacos:kafka.${spring.cloud.nacos.config.file-extension}
+
+
+
+
+

@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+yun.core.start.kafka.auto.KafkaProducerAutoConfiguration
